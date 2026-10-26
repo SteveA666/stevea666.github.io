@@ -32,6 +32,27 @@
       border-radius: 10px;
     }
     a { color: #2563eb; }
+    .project-card {
+      border: 1px solid #dce2eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .project-card h3 { margin-top: 0; }
+    .project-link {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .project-link:hover,
+    .project-link:focus-visible {
+      background: #192b49;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -48,6 +69,18 @@
 
     <section>
       <h2>My Projects</h2>
+      <article class="project-card">
+        <h3>Track Diagram Generator</h3>
+        <p>A Java tool for generating track diagrams.</p>
+        <a class="project-link" href="https://github.com/SteveA666/TrackDiagramGenerator"
+           aria-label="View Track Diagram Generator on GitHub">View on GitHub</a>
+      </article>
+      <article class="project-card">
+        <h3>Pic to ASCII Generator</h3>
+        <p>A Python tool that converts images into ASCII art.</p>
+        <a class="project-link" href="https://github.com/SteveA666/Pic_to_ASCII_Generator"
+           aria-label="View Pic to ASCII Generator on GitHub">View on GitHub</a>
+      </article>
       <h3>Automatic Irrigation System</h3>
       <p>An automated system for watering plants.</p>
     </section>
@@ -55,7 +88,7 @@
     <section>
       <h2>Contact</h2>
       <p>
-        <a href="https://github.com/yourusername">
+        <a href="https://github.com/SteveA666">
           My GitHub Profile
         </a>
       </p>
