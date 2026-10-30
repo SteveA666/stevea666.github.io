@@ -1,0 +1,17 @@
+WayToGO bundled browser dependencies
+
+pdf-lib 1.17.1 — MIT. See pdf-lib.LICENSE.md.
+https://github.com/Hopding/pdf-lib
+
+@pdf-lib/fontkit 1.1.1 — MIT (fontkit fork).
+https://github.com/Hopding/fontkit
+https://github.com/foliojs/fontkit
+License: fontkit.LICENSE.txt. Upstream documentation: fontkit.UPSTREAM.md.
+The distributed bundle is retained intact, including embedded dependency notices.
+
+Noto Sans — SIL Open Font License 1.1.
+See ../fonts/NotoSans.LICENSE.txt.
+https://github.com/notofonts/noto-fonts
+
+Y224.ttf was supplied by the project owner and is used for the Waterjet Studios wordmark.
+
