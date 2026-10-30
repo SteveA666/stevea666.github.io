@@ -1,3 +1,4 @@
+import {resolveStations,stationView} from './station-resolution.mjs?v=20261030-station-resolution';
 import {routeMode} from './modes.mjs';
 export function csv(text) {
   const rows = []; let row = [], value = '', quoted = false;
@@ -26,33 +27,10 @@ function hubRouteCounts(files,stops,mode,aliases=new Map()) {
   const served=new Map();
   for(const s of files['stop_times.txt']) {
     const route=tripRoutes.get(s.trip_id);if(!route)continue;
-    const stop=stops.get(s.stop_id),parent=stops.has(stop?.parent_station)?stop.parent_station:s.stop_id;
-    const station=aliases.get(parent)||parent;
+    const station=aliases.get(s.stop_id)||s.stop_id;
     if(!served.has(station))served.set(station,new Set());served.get(station).add(route);
   }
   const result=Object.fromEntries([...served].map(([id,routes])=>[id,routes.size]));cache.set(mode,result);return result;
-}
-
-function stationAliases(files,trips,stops,mode) {
-  const used=new Set(files['stop_times.txt'].filter(s=>trips.has(s.trip_id)).map(s=>s.stop_id));
-  const groups=new Map(),aliases=new Map();
-  const platform=/\s*(?:[-–]\s*)?(?:(?:north|south|east|west)bound\s+)?(?:(?:subway|lrt|train)\s+)?platform(?:\s+(?!towards?\b)\w+)?(?:\s+towards?\s+.+)?\s*$/i;
-  for(const id of used) {
-    const stop=stops.get(id);if(!stop||stops.has(stop.parent_station))continue;
-    const railPlatform=mode==='train'&&platform.test(stop.stop_name||'');
-    if(!railPlatform&&!/\b(station|terminal|interchange|transit cent(?:re|er))\b/i.test(stop.stop_name||''))continue;
-    if([stop.stop_lat,stop.stop_lon].some(v=>v==null||v===''||!Number.isFinite(Number(v))))continue;
-    const name=(railPlatform?stop.stop_name.replace(platform,''):stop.stop_name).trim();if(!name)continue;
-    const key=name.toLowerCase(),candidates=groups.get(key)||[];
-    const match=candidates.find(other=>{
-      const dy=(Number(stop.stop_lat)-Number(other.stop_lat))*111320;
-      const dx=(Number(stop.stop_lon)-Number(other.stop_lon))*111320*Math.cos(Number(stop.stop_lat)*Math.PI/180);
-      return Math.hypot(dx,dy)<=300;
-    });
-    if(match)aliases.set(id,match.stop_id);
-    else{const station={...stop,stop_name:name};candidates.push(station);groups.set(key,candidates);stops.set(id,station);}
-  }
-  return aliases;
 }
 
 function shapePaths(files,routes,trips,stops,geometry) {
@@ -120,7 +98,8 @@ export function normalize(files, {mode = 'train', routeId} = {}) {
     for (const field of fields) if (!(field in files[name + '.txt'][0])) throw new Error(`Missing ${field} in ${name}.txt.`);
   }
   if (!files['calendar.txt']?.length && !files['calendar_dates.txt']?.length) throw new Error('A calendar or calendar_dates file is required.');
-  const stops = new Map(files['stops.txt'].map(s => [s.stop_id, s]));
+  const resolution=resolveStations(files);
+  const selectedStopIds=new Set();
   const availableModes = ['train','bus'].filter(m => files['routes.txt'].some(r => routeMode(r) === m));
   if (!availableModes.length) throw new Error('No supported rail or bus routes found in this feed.');
   if (!availableModes.includes(mode)) mode = availableModes[0];
@@ -136,20 +115,22 @@ export function normalize(files, {mode = 'train', routeId} = {}) {
     const match = goFeed && t.trip_id.match(/^\d{8}-[A-Z0-9]+-(\d+)$/);
     return [t.trip_id, {...t, train_number:t.trip_short_name || (match ? match[1] : ''), times:[]}];
   }));
-  const platformAliases=stationAliases(files,trips,stops,mode);
+  for(const call of files['stop_times.txt'])if(trips.has(call.trip_id))selectedStopIds.add(call.stop_id);
+  const stops=stationView(resolution,selectedStopIds),platformAliases=resolution.aliases;
   for (const t of files['trips.txt']) if (!routes.has(t.route_id)) throw new Error(`Trip ${t.trip_id} references an unknown route.`);
   for (const s of files['stop_times.txt']) {
     if (!allTripIds.has(s.trip_id)) throw new Error('A stop time references an unknown trip or stop.');
     if (!trips.has(s.trip_id)) continue;
     if (!stops.has(s.stop_id)) throw new Error('A stop time references an unknown trip or stop.');
     if (!Number.isFinite(Number(s.stop_sequence))) throw new Error('Invalid stop_sequence.');
-    const stop = stops.get(s.stop_id), parent = stops.get(stop.parent_station);
-    trips.get(s.trip_id).times.push({stop_id:s.stop_id, station:parent?.stop_id || platformAliases.get(stop.stop_id) || stop.stop_id,
+    const stop = stops.get(s.stop_id);
+    trips.get(s.trip_id).times.push({stop_id:s.stop_id, station:platformAliases.get(stop.stop_id) || stop.stop_id,
       stop_sequence:s.stop_sequence, arrival_time:s.arrival_time || '', departure_time:s.departure_time || '',
       pickup_type:s.pickup_type || '0', drop_off_type:s.drop_off_type || '0', timepoint:s.timepoint || '1'});
   }
   for (const t of trips.values()) {
     t.times.sort((a,b) => Number(a.stop_sequence)-Number(b.stop_sequence));
+    t.source_calls=t.times;
     const calls=[];
     const permission=(a,b)=>a==='0'||b==='0'?'0':a==='1'?b:b==='1'?a:a;
     for(const stop of t.times){
@@ -186,6 +167,7 @@ export function normalize(files, {mode = 'train', routeId} = {}) {
   const shapeGeometry={},paths=shapePaths(files,selectedRoutes,trips,stops,shapeGeometry);
   return { agency: files['agency.txt']?.[0]?.agency_name || 'Imported railway', mode, availableModes, loadedRoute,
     modeCounts:Object.fromEntries(availableModes.map(m => [m,files['routes.txt'].filter(r => routeMode(r) === m).length])),
+    sourceStops:[...resolution.source.values()],stationResolution:{aliases:Object.fromEntries(platformAliases),groups:resolution.groups,decisions:resolution.decisions,unresolved:resolution.unresolved},
     agencyId:files['agency.txt']?.[0]?.agency_id || '', paths,shapeGeometry,hubRouteCounts:hubRouteCounts(files,stops,mode,platformAliases),
     routes:selectedRoutes, stops:[...stops.values()].filter(s => usedStops.has(s.stop_id)), trips:[...trips.values()], calendar, exceptions, frequencies, firstDate:dates[0] || '', lastDate:dates.at(-1) || '', warnings };
 }

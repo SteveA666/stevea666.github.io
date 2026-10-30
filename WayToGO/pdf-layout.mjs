@@ -1,4 +1,4 @@
-import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-bypass-segments';
+import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-station-resolution';
 export const PDF_TABLE_WIDTH=1046;
 export function packPDFPanels(panels) {
   const rows=[];let row=[],used=0;
