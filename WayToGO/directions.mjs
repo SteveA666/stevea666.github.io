@@ -1,4 +1,4 @@
-import {directionChoices,seconds,hasPassengerJourney} from './schedule.mjs?v=20261030-route21fix';
+import {directionChoices,seconds,hasPassengerJourney} from './schedule.mjs?v=20261030-bypass-segments';
 
 export function inferInbound(feed,routeId) {
   const trips=feed.trips.filter(t=>t.route_id===routeId&&hasPassengerJourney(t)),choices=directionChoices(feed,routeId);

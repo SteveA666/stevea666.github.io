@@ -63,8 +63,9 @@ function busCorridorPath(feed,trip,allTrips) {
   let result=physical?mergeSequence(corridor,physical):corridor;
   // A highway express can have its own access stops, so its whole calling
   // pattern need not be a subset of the local. Match shared anchors instead.
-  // Require an established shared corridor and a substantially denser local
-  // segment; two alternative branches alone are not evidence of an express.
+  // Compare each pair of shared stops independently: even one intermediate
+  // local stop can be bypassed. A fuller local pattern supplies corridor
+  // evidence when the express also has its own access-road stops.
   if(new Set(ids).size!==ids.length||sameShape.some(t=>stationSequence(t).length>ids.length))return result;
   const gaps=new Map();
   for(const reference of allTrips){
@@ -72,11 +73,16 @@ function busCorridorPath(feed,trip,allTrips) {
     const local=stationSequence(reference);
     if(new Set(local).size!==local.length)continue;
     const shared=ids.filter(id=>local.includes(id));
-    if(shared.length<3||!subsequence(shared,local))continue;
+    if(shared.length<2||!subsequence(shared,local))continue;
     for(let i=1;i<shared.length;i++){
       const a=shared[i-1],b=shared[i],start=local.indexOf(a),end=local.indexOf(b);
       const skipped=end-start-1,access=ids.indexOf(b)-ids.indexOf(a)-1;
-      if(skipped<3||skipped<2*(access+1))continue;
+      if(!skipped)continue;
+      // With no intermediate express calls this is a direct skip segment.
+      // If both paths have calls, require a fuller local service and shared
+      // corridor context, rather than treating equal alternative branches as
+      // expresses of one another. Access stops do not cancel skipped stops.
+      if(access&&(shared.length<3||local.length<=ids.length))continue;
       const key=JSON.stringify([a,b]);
       if(!gaps.has(key))gaps.set(key,{a,b,paths:[]});
       const paths=gaps.get(key).paths,segment=local.slice(start,end+1);

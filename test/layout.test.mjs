@@ -75,6 +75,25 @@ test('a highway express with unique access stops skips the inner local corridor'
   assert.equal(col.cells[t.stations.findIndex(s=>s.id==='Z')].kind,'blank');
   assert.equal(col.cells[t.stations.findIndex(s=>s.id==='X')].kind,'time');
 });
+
+test('a direct bypass between two exact shared stops skips every local stop in that segment',()=>{
+  const local=makeTrip('local','07:00:00',['A','B','C','D']);
+  const express=makeTrip('express','08:00:00',['X','A','D','Y']);
+  const f=makeFeed([local,express]),t=table(f,f.trips),col=t.columns.find(c=>c.trip===express);
+  for(const id of ['B','C'])assert.equal(col.cells[t.stations.findIndex(s=>s.id===id)].kind,'pass');
+});
+
+test('one-stop bypasses still count when an express has its own access-road stop',()=>{
+  const local=makeTrip('local','07:00:00',['A','B','L','C','D','E'],'21');
+  const express=makeTrip('express','08:00:00',['A','B','X','C','E'],'21A');
+  const reverse={...makeTrip('opposite','09:00:00',['E','Y','C','L','B','A']),direction_id:'1'};
+  const f=makeFeed([local,express,reverse]);f.stops=[...'ABCDE', 'L','X','Y'].map(id=>({stop_id:id,stop_name:id}));
+  const t=table(f,[local,express],[local,express,reverse]),col=t.columns.find(c=>c.trip===express);
+  assert.equal(col.cells[t.stations.findIndex(s=>s.id==='L')].kind,'pass','Lisgar-like bypass');
+  assert.equal(col.cells[t.stations.findIndex(s=>s.id==='D')].kind,'pass','next direct bypass');
+  assert.equal(col.cells[t.stations.findIndex(s=>s.id==='X')].kind,'time','access stop stays scheduled');
+  assert.ok(!t.stations.some(s=>s.id==='Y'),'opposite direction contributes no stops');
+});
 test('direction names use headsigns or geographic movement rather than assigning meaning to IDs',()=>{
   const f=makeFeed([makeTrip('out','07:00:00'),{...makeTrip('in','08:00:00',['C','B','A']),direction_id:'1'}]);
   f.stops.forEach((s,i)=>{s.stop_lat='43';s.stop_lon=String(-80+i);});

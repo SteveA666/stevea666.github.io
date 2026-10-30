@@ -1,8 +1,8 @@
-import {createLocalClient} from './local-client.mjs?v=20261030-route21fix';
-import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-route21fix';
+import {createLocalClient} from './local-client.mjs?v=20261030-bypass-segments';
+import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-bypass-segments';
 import {inferInbound,boundDirections} from './directions.mjs';
 import {importFileFrom,installFileDrop} from './upload.mjs';
-import {groups,clock,dayNames,trainLabel,initialDate,pruneTable,branchTag,branchInfo,branchOptions,directionChoices,tablePanels,genericGroups} from './schedule.mjs?v=20261030-route21fix';
+import {groups,clock,dayNames,trainLabel,initialDate,pruneTable,branchTag,branchInfo,branchOptions,directionChoices,tablePanels,genericGroups} from './schedule.mjs?v=20261030-bypass-segments';
 const $=id=>document.getElementById(id);
 const local=createLocalClient(text=>message(text));
 let feed,current=[],busy=false,branchRouteKey="";
