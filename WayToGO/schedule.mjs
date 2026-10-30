@@ -60,7 +60,31 @@ function busCorridorPath(feed,trip,allTrips) {
   const candidates=compatible.map(stationSequence);
   const corridor=completePath(ids,candidates);
   const physical=tripPath(feed,trip);
-  return physical?mergeSequence(corridor,physical):corridor;
+  let result=physical?mergeSequence(corridor,physical):corridor;
+  // A highway express can have its own access stops, so its whole calling
+  // pattern need not be a subset of the local. Match shared anchors instead.
+  // Require an established shared corridor and a substantially denser local
+  // segment; two alternative branches alone are not evidence of an express.
+  if(new Set(ids).size!==ids.length||sameShape.some(t=>stationSequence(t).length>ids.length))return result;
+  const gaps=new Map();
+  for(const reference of allTrips){
+    if(reference.route_id!==trip.route_id||reference.direction_id!==trip.direction_id)continue;
+    const local=stationSequence(reference);
+    if(new Set(local).size!==local.length)continue;
+    const shared=ids.filter(id=>local.includes(id));
+    if(shared.length<3||!subsequence(shared,local))continue;
+    for(let i=1;i<shared.length;i++){
+      const a=shared[i-1],b=shared[i],start=local.indexOf(a),end=local.indexOf(b);
+      const skipped=end-start-1,access=ids.indexOf(b)-ids.indexOf(a)-1;
+      if(skipped<3||skipped<2*(access+1))continue;
+      const key=JSON.stringify([a,b]);
+      if(!gaps.has(key))gaps.set(key,{a,b,paths:[]});
+      const paths=gaps.get(key).paths,segment=local.slice(start,end+1);
+      if(!paths.some(p=>JSON.stringify(p)===JSON.stringify(segment)))paths.push(segment);
+    }
+  }
+  for(const {a,b,paths}of gaps.values())result=mergeSequence(result,completePath([a,b],paths));
+  return result;
 }
 function mergeSequence(a,b) {
   // A shortest common supersequence preserves both paths, including repeated stops on loops.

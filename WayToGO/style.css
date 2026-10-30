@@ -22,3 +22,6 @@
 
 /* Use the window width; wrap trip labels while keeping times on one line. */
 main{max-width:none}.trip-panel thead th:not(.station){white-space:normal;overflow-wrap:anywhere}.trip-panel .branch-label{white-space:normal;overflow-wrap:anywhere}
+
+/* Keep day codes together beside the trip number, above the branch label. */
+.trip-label{display:inline-flex;align-items:baseline;max-width:100%;gap:2px}.trip-number{min-width:0;overflow-wrap:anywhere}.trip-label .day-marker{flex:none;white-space:nowrap;overflow-wrap:normal;line-height:1;margin:0;position:relative;top:.25em}

@@ -53,3 +53,10 @@ test('long GTFS IDs wrap instead of limiting a PDF panel to ten departures',()=>
   assert.equal(tableSize(source).tripWidth,64);
   assert.deepEqual(parts.flatMap(p=>p.panel.trips),source.trips);
 });
+
+test('day markers reserve their full width instead of splitting multi-letter codes',()=>{
+  const source=panel(1);source.trips=[{number:'21140',marker:'Sa',branch:'21C'}];
+  const saturday=tableSize(source).tripWidth;
+  source.trips[0].marker='M–Th';assert.ok(tableSize(source).tripWidth>saturday);
+  source.trips[0].marker='';assert.ok(tableSize(source).tripWidth<saturday);
+});

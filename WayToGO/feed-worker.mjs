@@ -16,7 +16,7 @@ self.onmessage=async({data})=>{
       progress('Loading schedule…');result={...normalize(cachedSource,{mode:payload.mode,routeId:payload.route||undefined}),feedId:cachedId};
     }else if(action==='demo'){cachedSource=undefined;cachedId=undefined;result=demo();}
     else if(action==='pdf'){
-      progress('Rendering PDF preview…');const {renderBrowserPDF}=await import('./pdf-browser.mjs?v=20261030-fit2');
+      progress('Rendering PDF preview…');const {renderBrowserPDF}=await import('./pdf-browser.mjs?v=20261030-route21fix');
       const bytes=await renderBrowserPDF(payload,progress);self.postMessage({id,result:bytes.buffer},[bytes.buffer]);return;
     }else throw Error('Unknown local operation.');
     self.postMessage({id,result});

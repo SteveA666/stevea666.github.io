@@ -1,4 +1,4 @@
-import {packPDFPanels} from './pdf-layout.mjs?v=20261030-fit2';
+import {packPDFPanels} from './pdf-layout.mjs?v=20261030-route21fix';
 const SCALE=.75,PAGE=[841.89,595.28],MARGIN=28.35;
 let dependencies;
 async function load(){
@@ -36,7 +36,7 @@ export async function renderBrowserPDF(data,onProgress=()=>{},options={}) {
     const headFont=headingFont(p.heading),headLines=wrap(p.heading,width-83,11,headFont),subLines=wrap(text(data.title)+(p.branch?' · '+p.branch:''),width,7.5);
     const headerHeight=headLines.length*13+subLines.length*10+17;
     const stationLines=wrap((data.stationLabel||'STATION')+' / TRIP NUMBER',station-8,7);
-    const trips=p.trips.map(t=>({number:wrap(t.number,trip-8,7.5),variant:t.branch?wrap(t.branch,trip-8,6):[],marker:t.marker||''}));
+    const trips=p.trips.map(t=>({number:wrap(t.number,trip-8-(t.marker?measure(t.marker,5)+2:0),7.5),variant:t.branch?wrap(t.branch,trip-8,6):[],marker:t.marker||''}));
     const tableHeader=Math.max(stationLines.length*9,...trips.map(t=>t.number.length*9+t.variant.length*8))+9;
     const rows=p.rows.map(r=>{const label=wrap(r.name,station-8,7.5),cells=r.cells.map(c=>wrap(c,trip-8,7.5));return {label,cells,height:Math.max(label.length,...cells.map(c=>c.length))*10+7};});
     const legend='Passing stop · Blank: not served · +1: next day'+(p.trips.some(t=>t.marker)?' · Day subscripts: M Mon, Tu Tue, W Wed, Th Thu, F Fri, Sa Sat, Su Sun':'');

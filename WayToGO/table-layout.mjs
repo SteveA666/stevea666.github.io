@@ -2,7 +2,7 @@
 export function tableSize(panel,scale=1) {
   const stationWidth=Math.min(240,Math.max(180,...panel.rows.map(r=>String(r.name??'').length*5.5+14)))*scale;
   // Headers can wrap; long GTFS trip IDs must not widen every time column.
-  const tripWidth=Math.max(52,...panel.trips.map(t=>Math.min(64,Math.max(String(t.number??'').length*6.3+14+(t.marker?14:0),String(t.branch??'').length*5.5+12))),...panel.rows.map(r=>r.cells.reduce((width,c)=>Math.max(width,String(c??'').length*5.5+12),0)))*scale;
+  const tripWidth=Math.max(52,...panel.trips.map(t=>Math.max(Math.min(64,String(t.number??'').length*6.8+14)+(t.marker?String(t.marker).length*6+4:0),Math.min(64,String(t.branch??'').length*5.5+12))),...panel.rows.map(r=>r.cells.reduce((width,c)=>Math.max(width,String(c??'').length*5.5+12),0)))*scale;
   return {stationWidth,tripWidth,width:Math.max(350*scale,stationWidth+tripWidth*panel.trips.length)};
 }
 
