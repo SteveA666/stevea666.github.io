@@ -75,7 +75,7 @@ export async function renderBrowserPDF(data,onProgress=()=>{},options={}) {
     return top-r.height;
   };
   const footer=(m,x,top)=>{lines(['↓'],x,top-6,6,8,font,6);lines(m.legendLines,x+9,top-6,6,8);return top-m.footer;};
-  addPage();let rendered=0;
+  addPage();let rendered=0;const total=packed.reduce((n,row)=>n+row.length,0);
   for(const packedRow of packed){
     const models=packedRow.map(model),height=Math.max(...models.map(m=>m.height)),usable=PAGE[1]-2*MARGIN;
     if(height<=usable){
@@ -95,7 +95,7 @@ export async function renderBrowserPDF(data,onProgress=()=>{},options={}) {
         y=footer(m,MARGIN,top)-12;
       }
     }
-    rendered+=models.length;onProgress('Rendering PDF preview… '+rendered+' / '+data.panels.length+' panels');
+    rendered+=models.length;onProgress('Rendering PDF preview… '+rendered+' / '+total+' panels');
   }
   return pdf.save();
 }

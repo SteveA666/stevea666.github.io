@@ -1,5 +1,5 @@
 import {createLocalClient} from './local-client.mjs';
-import {tableSize} from './table-layout.mjs';
+import {tableSize,splitPanel} from './table-layout.mjs';
 import {inferInbound,boundDirections} from './directions.mjs';
 import {importFileFrom,installFileDrop} from './upload.mjs';
 import {groups,clock,dayNames,trainLabel,initialDate,pruneTable,branchTag,branchInfo,branchOptions,directionChoices,tablePanels,genericGroups} from './schedule.mjs';
@@ -30,6 +30,16 @@ function setFeed(data){const prior=$('route').value;feed=data;if(feed.mode==='bu
 function applyTheme(){const r=selectedRoute();const color=/^[\da-f]{6}$/i.test(r?.route_color||'')?r.route_color:'285b43';const rgb=color.match(/../g).map(x=>parseInt(x,16));const luminance=rgb.map(c=>{c/=255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4;}).reduce((a,c,i)=>a+c*[.2126,.7152,.0722][i],0);const contrastWhite=1.05/(luminance+.05),contrastBlack=(luminance+.05)/.05;let ink=contrastWhite>=contrastBlack?'ffffff':'000000';if(/^[\da-f]{6}$/i.test(r?.route_text_color||'')){const text=r.route_text_color.match(/../g).map(x=>parseInt(x,16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4).reduce((a,c,i)=>a+c*[.2126,.7152,.0722][i],0);if((Math.max(text,luminance)+.05)/(Math.min(text,luminance)+.05)>=4.5)ink=r.route_text_color;}const tint=amount=>'#'+rgb.map(v=>Math.round(v+(255-v)*amount).toString(16).padStart(2,'0')).join('');for(const [key,value]of Object.entries({'--line-color':'#'+color,'--line-ink':'#'+ink,'--line-tint':tint(.87),'--line-stripe':tint(.96)}))$('schedule').style.setProperty(key,value);}
 function dayLabel(dates){const days=dates.map(d=>dayNames[new Date(d+'T12:00:00Z').getUTCDay()]);return days.length===5&&days.join()==='Monday,Tuesday,Wednesday,Thursday,Friday'?'Monday – Friday':days.join(' · ');}
 function timeText(cell){return cell.kind==='pass'?'↓':cell.kind==='time'?(clock(cell.time,$('format').value==='12',$('format').value==='service')||'—'):'';}
+function panelData(t){
+  const showBranch=feed.mode==='bus'&&$('branches').value===''&&new Set(t.columns.map(c=>branchInfo(c.trip).key)).size>1;
+  return {trips:t.columns.map(c=>({number:trainLabel(c.trip),marker:c.trip.dayMarker||'',branch:showBranch?branchTag(c.trip,selectedRoute()):c.trip.service_variant||''})),
+    rows:t.stations.map((st,row)=>({name:st.name,cells:t.columns.map(c=>timeText(c.cells[row]))}))};
+}
+function availableTableWidth(){
+  const schedule=$('schedule'),style=getComputedStyle(schedule);
+  // Reserve borders, deck padding, and the table's vertical scrollbar gutter.
+  return Math.max(1,schedule.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-(matchMedia('(max-width:580px)').matches?33:45));
+}
 function panelHTML(section,full,columns,panel,total,groupTitle){const t=pruneTable(full,columns);const showBranch=feed.mode==='bus'&&$('branches').value===''&&new Set(full.columns.map(c=>branchInfo(c.trip).key)).size>1;const label=[section.branchLabel,section.label].filter(Boolean).join(' · ');return `<div class="direction-title">${section.branchLabel?`<strong>${esc(section.branchLabel)}</strong>`:''}<span title="${esc(t.sortStation?`Ordered at ${t.sortStation}`:'Ordered by departure')}">Panel ${panel+1} of ${total}</span></div><div class="table-scroll"><table aria-label="${esc(groupTitle+' '+label)}"><thead><tr><th class="station" scope="col">${feed.mode==='bus'?'STOP / TRIP':'STATION / TRIP'} NUMBER →</th>${t.columns.map(c=>`<th scope="col" title="${esc(c.trip.trip_id+(c.trip.source_service_date?' · Service date '+c.trip.source_service_date:''))}">${esc(trainLabel(c.trip))}${c.trip.dayMarker?`<sub class="day-marker" title="Runs on ${esc(c.trip.dayDescription)}" aria-label="Runs on ${esc(c.trip.dayDescription)}">${esc(c.trip.dayMarker)}</sub>`:''}${showBranch||c.trip.service_variant?`<small class="branch-label" title="${esc(c.trip.trip_headsign||branchInfo(c.trip).label)}">${esc(showBranch?branchTag(c.trip,selectedRoute()):c.trip.service_variant)}</small>`:''}</th>`).join('')}</tr></thead><tbody>${t.stations.map((st,row)=>`<tr class="${st.branch?'branch-stop':''}"><th class="station" scope="row">${esc(st.name)}${st.branch&&(row===0||t.stations[row-1].branch!==st.branch)?`<small class="station-branch">${esc(st.branchLabel)} branch</small>`:''}</th>${t.columns.map(c=>{const cell=c.cells[row];const title=cell.kind==='blank'?'Not served':cell.kind==='pass'?'Passing stop':cell.time?`${cell.time}${cell.estimated?' · Approximate time':''}`:'Time not published';return `<td class="${cell.kind}${cell.estimated?' estimated':''}" title="${esc(title)}" aria-label="${esc(title)}">${esc(timeText(cell))}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`;}
 function render(){
   if(!feed||!$('date').value)return;
@@ -49,10 +59,14 @@ function render(){
       const title=g.generic?g.title:human($('date').value);groupCount++;
       const subtitle=g.generic?routeName()+' / Typical service':routeName();
       const panels=g.sections.flatMap(section=>{
-        count+=section.table.columns.length;const tables=tablePanels(section.table);
+        count+=section.table.columns.length;
+        let offset=0;
+        const tables=splitPanel(panelData(section.table),availableTableWidth(),1.15).map(part=>{
+          const t=pruneTable(section.table,section.table.columns.slice(offset,offset+part.trips.length));offset+=part.trips.length;return t;
+        });
         return tables.map((t,p)=>{
-          const size=tableSize({trips:t.columns.map(c=>({number:trainLabel(c.trip),marker:c.trip.dayMarker})),rows:t.stations.map((st,row)=>({name:st.name,cells:t.columns.map(c=>timeText(c.cells[row]))}))},1.15);
-          return {width:size.width,html:'<section class="trip-panel" style="--table-width:'+size.width+'px;--station-width:'+size.stationWidth+'px">'+panelHTML({...section,label:d.label},t,t.columns,p,tables.length,title)+'</section>'};
+          const size=tableSize(panelData(t),1.15);
+          return {width:size.width+19,html:'<section class="trip-panel" style="--table-width:'+size.width+'px;--station-width:'+size.stationWidth+'px">'+panelHTML({...section,label:d.label},t,t.columns,p,tables.length,title)+'</section>'};
         });
       });
       const width=Math.max(...panels.map(p=>p.width+26),400);
@@ -75,17 +89,19 @@ for(const b of $('mode').querySelectorAll('button'))b.onclick=()=>loadSelection(
 $('route').onchange=()=>{if(feed.mode==='bus'&&feed.loadedRoute!==$('route').value)loadSelection('bus',$('route').value);else{directions();branches();render();}};
 $('inbound').onchange=()=>{inboundOverrides.set(routeIdentity(),$('inbound').value);directions();render();};
 for(const id of ['date','group','generic-days','direction','format','branches'])$(id).onchange=render;
+let layoutWidth=0,layoutFrame;
+new ResizeObserver(entries=>{
+  const width=entries[0].contentRect.width;
+  if(Math.abs(width-layoutWidth)<1)return;
+  layoutWidth=width;cancelAnimationFrame(layoutFrame);layoutFrame=requestAnimationFrame(render);
+}).observe($('schedule'));
 let previewURL;
 $('pdf-close').onclick=()=>$('pdf-preview').close();
 $('print').onclick=async()=>{
   if(busy)return;
   const panels=[];
   for(const d of current)for(const g of d.groups)for(const section of g.sections){
-    const tables=tablePanels(section.table);
-    const showBranch=feed.mode==='bus'&&$('branches').value===''&&new Set(section.table.columns.map(c=>branchInfo(c.trip).key)).size>1;
-    tables.forEach((t,i)=>panels.push({heading:d.label+' · '+(g.generic?g.title:human($('date').value)),branch:section.branchLabel||'',number:i+1,total:tables.length,
-      trips:t.columns.map(c=>({number:trainLabel(c.trip),marker:c.trip.dayMarker||'',branch:showBranch?branchTag(c.trip,selectedRoute()):c.trip.service_variant||''})),
-      rows:t.stations.map((st,row)=>({name:st.name,cells:t.columns.map(c=>timeText(c.cells[row]))}))}));
+    panels.push({...panelData(section.table),heading:d.label+' · '+(g.generic?g.title:human($('date').value)),branch:section.branchLabel||'',number:1,total:1});
   }
   setBusy(true);message('Rendering PDF preview…');
   try{
