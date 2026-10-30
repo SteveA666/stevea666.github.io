@@ -1,4 +1,4 @@
-import {packPDFPanels} from './pdf-layout.mjs';
+import {packPDFPanels} from './pdf-layout.mjs?v=20261030-fit2';
 const SCALE=.75,PAGE=[841.89,595.28],MARGIN=28.35;
 let dependencies;
 async function load(){

@@ -1,4 +1,4 @@
-import {tableSize,splitPanel} from './table-layout.mjs';
+import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-fit2';
 export const PDF_TABLE_WIDTH=1046;
 export function packPDFPanels(panels) {
   const rows=[];let row=[],used=0;

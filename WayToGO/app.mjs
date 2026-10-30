@@ -1,5 +1,5 @@
-import {createLocalClient} from './local-client.mjs';
-import {tableSize,splitPanel} from './table-layout.mjs';
+import {createLocalClient} from './local-client.mjs?v=20261030-fit2';
+import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-fit2';
 import {inferInbound,boundDirections} from './directions.mjs';
 import {importFileFrom,installFileDrop} from './upload.mjs';
 import {groups,clock,dayNames,trainLabel,initialDate,pruneTable,branchTag,branchInfo,branchOptions,directionChoices,tablePanels,genericGroups} from './schedule.mjs';
@@ -61,11 +61,11 @@ function render(){
       const panels=g.sections.flatMap(section=>{
         count+=section.table.columns.length;
         let offset=0;
-        const tables=splitPanel(panelData(section.table),availableTableWidth(),1.15).map(part=>{
+        const tables=splitPanel(panelData(section.table),availableTableWidth()).map(part=>{
           const t=pruneTable(section.table,section.table.columns.slice(offset,offset+part.trips.length));offset+=part.trips.length;return t;
         });
         return tables.map((t,p)=>{
-          const size=tableSize(panelData(t),1.15);
+          const size=tableSize(panelData(t));
           return {width:size.width+19,html:'<section class="trip-panel" style="--table-width:'+size.width+'px;--station-width:'+size.stationWidth+'px">'+panelHTML({...section,label:d.label},t,t.columns,p,tables.length,title)+'</section>'};
         });
       });

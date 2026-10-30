@@ -19,3 +19,6 @@
 .trip-panel{width:calc(var(--table-width) + 19px);flex-basis:calc(var(--table-width) + 19px)}.trip-panel .table-scroll{scrollbar-gutter:stable}
 @media(max-width:580px){.trip-panel{flex-basis:100%}}
 @media print{.trip-panel{width:100%}}
+
+/* Use the window width; wrap trip labels while keeping times on one line. */
+main{max-width:none}.trip-panel thead th:not(.station){white-space:normal;overflow-wrap:anywhere}.trip-panel .branch-label{white-space:normal;overflow-wrap:anywhere}
