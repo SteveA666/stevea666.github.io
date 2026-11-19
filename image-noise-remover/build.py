@@ -39,10 +39,7 @@ def install_runtime(destination):
                 with bundle.extractfile(f"package/dist/{filename}") as source:
                     with (destination / filename).open("wb") as output:
                         shutil.copyfileobj(source, output)
-    download(
-        f"https://raw.githubusercontent.com/microsoft/onnxruntime/v{VERSION}/LICENSE",
-        destination / "LICENSE",
-    )
+    shutil.copyfile(WEB / "ONNX-RUNTIME-LICENSE", destination / "LICENSE")
 
 
 def main():
