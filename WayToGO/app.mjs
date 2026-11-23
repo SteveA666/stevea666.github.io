@@ -1,4 +1,4 @@
-import {createLocalClient} from './local-client.mjs?v=20261030-station-resolution';
+import {createLocalClient} from './local-client.mjs?v=20261123-route-consolidation';
 import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-station-resolution';
 import {inferInbound,boundDirections} from './directions.mjs';
 import {importFileFrom,installFileDrop} from './upload.mjs';

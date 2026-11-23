@@ -92,12 +92,40 @@ function shapePaths(files,routes,trips,stops,geometry) {
   return paths;
 }
 
+// A feed can assign several IDs to one public line (for example, service
+// revisions). Consolidate their trips as well as their menu labels.
+function consolidateRoutes(files) {
+  const groups=new Map(),aliases=new Map();
+  const text=value=>String(value??'').trim().replace(/\s+/g,' ').toLowerCase();
+  for(const route of files['routes.txt']) {
+    const short=text(route.route_short_name),long=text(route.route_long_name);
+    // Unnamed routes must retain their independent IDs.
+    const key=JSON.stringify([route.agency_id||'',String(route.route_type),short,long,short||long?'':route.route_id]);
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push(route);
+  }
+  const routes=[...groups.values()].map(members=>{
+    const ordered=[...members].sort((a,b)=>String(a.route_id).localeCompare(String(b.route_id),'en'));
+    const canonical=ordered[0];
+    for(const route of ordered)aliases.set(route.route_id,canonical.route_id);
+    return members.length===1?canonical:{...canonical,source_route_ids:ordered.map(r=>r.route_id)};
+  });
+  const trips=files['trips.txt'].map(trip=>{
+    const id=aliases.get(trip.route_id);
+    return id&&id!==trip.route_id?{...trip,source_route_id:trip.route_id,route_id:id}:trip;
+  });
+  return {files:{...files,'routes.txt':routes,'trips.txt':trips},aliases};
+}
+
 export function normalize(files, {mode = 'train', routeId} = {}) {
   for (const [name, fields] of Object.entries({routes:['route_id','route_type'],trips:['trip_id','route_id','service_id'],stops:['stop_id','stop_name'],stop_times:['trip_id','stop_id','stop_sequence']})) {
     if (!files[name + '.txt']?.length) throw new Error(`Missing or empty ${name}.txt.`);
     for (const field of fields) if (!(field in files[name + '.txt'][0])) throw new Error(`Missing ${field} in ${name}.txt.`);
   }
   if (!files['calendar.txt']?.length && !files['calendar_dates.txt']?.length) throw new Error('A calendar or calendar_dates file is required.');
+  const consolidated=consolidateRoutes(files);
+  files=consolidated.files;
+  routeId=consolidated.aliases.get(routeId)||routeId;
   const resolution=resolveStations(files);
   const selectedStopIds=new Set();
   const availableModes = ['train','bus'].filter(m => files['routes.txt'].some(r => routeMode(r) === m));

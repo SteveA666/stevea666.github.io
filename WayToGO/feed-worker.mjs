@@ -1,5 +1,5 @@
 import {unzipBrowser} from './zip-browser.mjs';
-import {normalize} from './gtfs.mjs?v=20261030-station-resolution';
+import {normalize} from './gtfs.mjs?v=20261123-route-consolidation';
 import {demo} from './demo.mjs';
 let cachedSource,cachedId;
 self.onmessage=async({data})=>{
