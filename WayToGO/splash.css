@@ -1,0 +1,20 @@
+.import-splash { min-height: calc(100svh - 175px); display: flex; flex-direction: column; padding: 24px 0; }
+.import-toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 24px; }
+.open-gtfs { font-size: 14px; padding: 12px 22px; }
+.splash-prompt { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 24px; padding: 48px 16px 100px; text-align: center; }
+.splash-prompt svg { width: 56px; height: 56px; color: #304b3c; }
+.splash-prompt p { color: #304b3c; font-size: 16px; }
+.feed-summary { margin-right: auto; min-width: 0; }
+.feed-summary h1 { margin: 0 0 4px; font: 700 20px/1.3 system-ui, sans-serif; letter-spacing: -.4px; overflow-wrap: anywhere; }
+.feed-summary p { font-size: 12px; }
+body:not(.feed-loaded) footer { display: none; }
+.feed-loaded .import-splash { min-height: 0; padding: 24px 0; }
+.feed-loaded .splash-prompt { display: none; }
+.file-drag .splash-prompt { background: #e9eee5b3; border-radius: 8px; }
+@media (max-width: 580px) {
+  .import-toolbar { gap: 16px; flex-wrap: wrap; }
+  .splash-prompt { padding: 40px 0 90px; }
+  .splash-prompt p { font-size: 14px; }
+  .feed-loaded .open-gtfs { margin-left: auto; }
+}
+@media print { .import-splash { display: none !important; } }
