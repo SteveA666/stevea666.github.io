@@ -35,5 +35,5 @@ export function inferInbound(feed,routeId) {
 export function boundDirections(feed,routeId,override='') {
   const choices=directionChoices(feed,routeId),auto=inferInbound(feed,routeId);
   const inbound=choices.some(c=>c.id===override)?override:auto.id;
-  return choices.map(c=>{const role=inbound===null?'Unspecified':c.id===inbound?'Inbound':'Outbound';return {...c,compassLabel:c.label,role,label:role==='Unspecified'||c.label.toLowerCase()===role.toLowerCase()?c.label:`${role} · ${c.label}`};}).sort((a,b)=>(a.role==='Inbound'?0:1)-(b.role==='Inbound'?0:1)||a.id.localeCompare(b.id));
+  return choices.map(c=>{const role=inbound===null?'Unspecified':c.id===inbound?'Inbound':'Outbound';return {...c,compassLabel:c.label,role};}).sort((a,b)=>(a.role==='Inbound'?0:1)-(b.role==='Inbound'?0:1)||a.id.localeCompare(b.id));
 }

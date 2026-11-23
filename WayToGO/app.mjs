@@ -1,6 +1,6 @@
 import {createLocalClient} from './local-client.mjs?v=20261123-route-consolidation';
 import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-station-resolution';
-import {inferInbound,boundDirections} from './directions.mjs';
+import {inferInbound,boundDirections} from './directions.mjs?v=20261123-cleanup';
 import {importFileFrom,installFileDrop} from './upload.mjs';
 import {groups,clock,dayNames,trainLabel,initialDate,pruneTable,branchTag,branchInfo,branchOptions,directionChoices,tablePanels,genericGroups} from './schedule.mjs?v=20261030-station-resolution';
 const $=id=>document.getElementById(id);
@@ -18,15 +18,14 @@ function routeName(){const r=selectedRoute();return r?.route_long_name||r?.route
 function syncModes(){for(const b of $('mode').querySelectorAll('button')){b.setAttribute('aria-pressed',String(b.dataset.mode===(feed.mode||'train')));b.disabled=!(feed.availableModes||['train']).includes(b.dataset.mode);}}
 function directions(){
   const key=routeIdentity(),manual=inboundOverrides.get(key)||'',auto=inferInbound(feed,$('route').value),compass=directionChoices(feed,$('route').value);
-  const autoLabel=compass.find(d=>d.id===auto.id)?.label||'Undetermined';
-  $('inbound').innerHTML=`<option value="">Auto — ${esc(autoLabel)}</option>`+compass.map(d=>`<option value="${esc(d.id)}">${esc(d.label)} is inbound</option>`).join('');
+  $('inbound').innerHTML=`<option value="">Auto</option>`+compass.map(d=>`<option value="${esc(d.id)}">${esc(d.label)}</option>`).join('');
   $('inbound').value=manual;$('inbound').title=`Auto: ${auto.reason}. Choose a direction to override.`;$('inbound-field').hidden=compass.length<2;
   const prior=$('direction').value,choices=boundDirections(feed,$('route').value,manual);
   $('direction').innerHTML='<option value="all">Both directions</option>'+choices.map(d=>`<option value="${d.role.toLowerCase()}">${esc(d.label)}</option>`).join('');
   if(choices.some(d=>d.role.toLowerCase()===prior))$('direction').value=prior;
 }
 function branches(){const routeKey=[feed.feedId||'demo',feed.mode,$('route').value].join(':');const prior=routeKey===branchRouteKey?$('branches').value:'';branchRouteKey=routeKey;const choices=branchOptions(feed,$('route').value);$('branch-field').hidden=choices.length<2;$('branches').innerHTML='<option value="">Consolidated Table</option>'+choices.map(b=>`<option value="${esc(b.key)}">${esc(b.label)}</option>`).join('');if(choices.some(b=>b.key===prior))$('branches').value=prior;}
-function setFeed(data){document.body.classList.add('feed-loaded');$('workspace').hidden=false;$('feed-summary').hidden=false;const prior=$('route').value;feed=data;if(feed.mode==='bus')feed.routes=[...feed.routes].sort((a,b)=>(a.route_short_name||a.route_long_name||a.route_id).localeCompare(b.route_short_name||b.route_long_name||b.route_id,'en',{numeric:true,sensitivity:'base'}));$('agency').textContent=feed.agency;const counts=feed.modeCounts;$('source').textContent=feed.demo?'Demonstration feed · Fictional railway':counts?`${counts.train||0} rail lines · ${counts.bus||0} bus routes · Imported GTFS`:`${feed.routes.length} lines · Imported GTFS`;$('route').innerHTML=[...feed.routes].sort((a,b)=>String(a.route_short_name||a.route_long_name||a.route_id).localeCompare(String(b.route_short_name||b.route_long_name||b.route_id),'en',{numeric:true,sensitivity:'base'})||String(a.route_long_name||a.route_id).localeCompare(String(b.route_long_name||b.route_id),'en',{numeric:true,sensitivity:'base'})).map(r=>`<option value="${esc(r.route_id)}">${esc([r.route_short_name,r.route_long_name].filter(Boolean).join(' · ')||r.route_id)}</option>`).join('');if(feed.loadedRoute)$('route').value=feed.loadedRoute;else if(feed.routes.some(r=>r.route_id===prior))$('route').value=prior;$('date').value=initialDate(feed,$('date').value);directions();branches();syncModes();message(feed.warnings.join(' '));render();}
+function setFeed(data){document.body.classList.add('feed-loaded');$('workspace').hidden=false;$('feed-summary').hidden=false;const prior=$('route').value;feed=data;if(feed.mode==='bus')feed.routes=[...feed.routes].sort((a,b)=>(a.route_short_name||a.route_long_name||a.route_id).localeCompare(b.route_short_name||b.route_long_name||b.route_id,'en',{numeric:true,sensitivity:'base'}));$('agency').textContent=feed.agency;const counts=feed.modeCounts;$('source').textContent=feed.demo?'Demonstration feed · Fictional railway':counts?`${counts.train||0} rail lines · ${counts.bus||0} bus routes`:`${feed.routes.length} lines`;$('route').innerHTML=[...feed.routes].sort((a,b)=>String(a.route_short_name||a.route_long_name||a.route_id).localeCompare(String(b.route_short_name||b.route_long_name||b.route_id),'en',{numeric:true,sensitivity:'base'})||String(a.route_long_name||a.route_id).localeCompare(String(b.route_long_name||b.route_id),'en',{numeric:true,sensitivity:'base'})).map(r=>`<option value="${esc(r.route_id)}">${esc([r.route_short_name,r.route_long_name].filter(Boolean).join(' · ')||r.route_id)}</option>`).join('');if(feed.loadedRoute)$('route').value=feed.loadedRoute;else if(feed.routes.some(r=>r.route_id===prior))$('route').value=prior;$('date').value=initialDate(feed,$('date').value);directions();branches();syncModes();message(feed.warnings.join(' '));render();}
 function applyTheme(){const r=selectedRoute();const color=/^[\da-f]{6}$/i.test(r?.route_color||'')?r.route_color:'285b43';const rgb=color.match(/../g).map(x=>parseInt(x,16));const luminance=rgb.map(c=>{c/=255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4;}).reduce((a,c,i)=>a+c*[.2126,.7152,.0722][i],0);const contrastWhite=1.05/(luminance+.05),contrastBlack=(luminance+.05)/.05;let ink=contrastWhite>=contrastBlack?'ffffff':'000000';if(/^[\da-f]{6}$/i.test(r?.route_text_color||'')){const text=r.route_text_color.match(/../g).map(x=>parseInt(x,16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4).reduce((a,c,i)=>a+c*[.2126,.7152,.0722][i],0);if((Math.max(text,luminance)+.05)/(Math.min(text,luminance)+.05)>=4.5)ink=r.route_text_color;}const tint=amount=>'#'+rgb.map(v=>Math.round(v+(255-v)*amount).toString(16).padStart(2,'0')).join('');for(const [key,value]of Object.entries({'--line-color':'#'+color,'--line-ink':'#'+ink,'--line-tint':tint(.87),'--line-stripe':tint(.96)}))$('schedule').style.setProperty(key,value);}
 function dayLabel(dates){const days=dates.map(d=>dayNames[new Date(d+'T12:00:00Z').getUTCDay()]);return days.length===5&&days.join()==='Monday,Tuesday,Wednesday,Thursday,Friday'?'Monday – Friday':days.join(' · ');}
 function timeText(cell){return cell.kind==='pass'?'↓':cell.kind==='time'?(clock(cell.time,$('format').value==='12',$('format').value==='service')||'—'):'';}
@@ -47,6 +46,7 @@ function render(){
   const choices=boundDirections(feed,$('route').value,$('inbound').value).filter(d=>$('direction').value==='all'||d.role.toLowerCase()===$('direction').value);
   const generic=$('group').value==='generic';
   $('generic-days-field').hidden=!generic;
+  $('service-date-field').hidden=generic;
   const selectedDays=$('generic-days').value;
   current=choices.map(d=>({...d,groups:(generic?genericGroups(feed,$('route').value,$('date').value,d.id,{branchKey}):groups(feed,$('route').value,$('date').value,false,d.id,{branchKey})).filter(g=>g.trips.length&&(!generic||selectedDays==='all'||g.title.toLowerCase()===selectedDays))})).filter(d=>d.groups.length);
   $('day-key').hidden=!generic||!current.some(d=>d.groups.some(g=>g.trips.some(t=>t.dayMarker)));
@@ -57,7 +57,6 @@ function render(){
     const links=jumpLinks(index)+'<a href="#timetable-top">Back to top ↑</a>';
     return d.groups.map((g,groupIndex)=>{
       const title=g.generic?g.title:human($('date').value);groupCount++;
-      const subtitle=g.generic?routeName()+' / Typical service':routeName();
       const panels=g.sections.flatMap(section=>{
         count+=section.table.columns.length;
         let offset=0;
@@ -70,7 +69,7 @@ function render(){
         });
       });
       const width=Math.max(...panels.map(p=>p.width+26),400);
-      return '<section class="day-group'+(panels.length>1?' multi-panel':'')+'" '+(groupIndex===0?'id="direction-'+index+'" tabindex="-1"':'')+' style="--group-width:'+width+'px"><div class="group-title"><strong>'+esc(d.label)+' · '+esc(title)+'</strong><span>'+esc(subtitle)+'</span></div><div class="panel-deck">'+panels.map(p=>p.html).join('')+'</div><nav class="group-links" aria-label="Jump from '+esc(d.label)+'">'+links+'</nav></section>';
+      return '<section class="day-group'+(panels.length>1?' multi-panel':'')+'" '+(groupIndex===0?'id="direction-'+index+'" tabindex="-1"':'')+' style="--group-width:'+width+'px"><div class="group-title"><strong>'+esc(d.label)+' · '+esc(title)+'</strong></div><div class="panel-deck">'+panels.map(p=>p.html).join('')+'</div><nav class="group-links" aria-label="Jump from '+esc(d.label)+'">'+links+'</nav></section>';
     }).join('');
   }).join('')||'<div class="empty">No scheduled trips for this selection. Try another date, direction or branch.</div>';
   $('preview-label').textContent=routeName();$('stats').textContent=`${groupCount} service groups · ${count} trips`;$('csv').disabled=!count||busy;$('print').disabled=!count||busy;
