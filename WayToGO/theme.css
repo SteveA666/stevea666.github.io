@@ -63,6 +63,47 @@
   --ui-text: #283438; --ui-muted: #56676a; --ui-soft: #dfe6e6; --ui-border: #c5d0d1;
 }
 
+:root[data-theme="7"] {
+  --ui-base: #faf1ec; --ui-accent: #9c4736; --ui-dark: #553c35;
+  --ui-text: #3e302b; --ui-muted: #6b5149; --ui-soft: #f2e2d9; --ui-border: #ddc9bc;
+}
+:root[data-theme="8"] {
+  --ui-base: #edf7fa; --ui-accent: #08637e; --ui-dark: #244651;
+  --ui-text: #243b42; --ui-muted: #46636d; --ui-soft: #dceef3; --ui-border: #bfd8e0;
+}
+:root[data-theme="9"] {
+  --ui-base: #f3f4ed; --ui-accent: #285f52; --ui-dark: #2b403a;
+  --ui-text: #293b33; --ui-muted: #54665b; --ui-soft: #e6ecdf; --ui-border: #ccd8c5;
+}
+:root[data-theme="10"] {
+  --ui-base: #edf5f4; --ui-accent: #2b6467; --ui-dark: #284446;
+  --ui-text: #283c3c; --ui-muted: #45605e; --ui-soft: #dcebe7; --ui-border: #c3d7d0;
+}
+:root[data-theme="11"] {
+  --ui-base: #f2f4e8; --ui-accent: #536533; --ui-dark: #3b462b;
+  --ui-text: #333c28; --ui-muted: #556243; --ui-soft: #e6ebd5; --ui-border: #cdd7b8;
+}
+:root[data-theme="12"] {
+  --ui-base: #f7efea; --ui-accent: #8c3439; --ui-dark: #513331;
+  --ui-text: #3e302d; --ui-muted: #6c544c; --ui-soft: #eee0d8; --ui-border: #ddc7bc;
+}
+:root[data-theme="13"] {
+  --ui-base: #eaf5fa; --ui-accent: #006783; --ui-dark: #1f4255;
+  --ui-text: #233c47; --ui-muted: #425f70; --ui-soft: #d8ebf4; --ui-border: #bbd5e3;
+}
+:root[data-theme="14"] {
+  --ui-base: #faf0ef; --ui-accent: #ac2734; --ui-dark: #542d34;
+  --ui-text: #402e32; --ui-muted: #70515a; --ui-soft: #f1dedf; --ui-border: #e1c4c8;
+}
+:root[data-theme="15"] {
+  --ui-base: #f2eff2; --ui-accent: #6b3e63; --ui-dark: #39323e;
+  --ui-text: #342e39; --ui-muted: #65566a; --ui-soft: #e7dfe8; --ui-border: #d1c5d3;
+}
+:root[data-theme="16"] {
+  --ui-base: #faf1e8; --ui-accent: #8e4b2d; --ui-dark: #3c3f50;
+  --ui-text: #3d3332; --ui-muted: #604d49; --ui-soft: #f0e0d0; --ui-border: #dec9b8;
+}
+
 @media screen {
   :root { font-family: 'Georgia Words', Saira, Georgia, serif; font-stretch: normal; color: var(--ui-text); background: var(--ui-base); }
   button, input, select, h1, .button, .mode-switch button,

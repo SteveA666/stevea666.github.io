@@ -10,15 +10,25 @@
 :root[data-theme="3"] { --photo-url: url('./backgrounds/photo-3.jpg'); --photo-opacity: .11; --photo-position: 50% 52%; }
 :root[data-theme="4"] { --photo-url: url('./backgrounds/photo-4.jpg'); --photo-opacity: .08; --photo-position: 50% 55%; }
 :root[data-theme="6"] { --photo-url: url('./backgrounds/photo-6.jpg'); --photo-opacity: .14; --photo-position: 50% 65%; }
+:root[data-theme="7"] { --photo-url: url('./backgrounds/photo-7.jpg'); --photo-opacity: .09; --photo-position: 50% 58%; --photo-pan: .7; }
+:root[data-theme="8"] { --photo-url: url('./backgrounds/photo-8.jpg'); --photo-opacity: .09; --photo-position: 50% 50%; --photo-pan: .35; }
+:root[data-theme="9"] { --photo-url: url('./backgrounds/photo-9.jpg'); --photo-opacity: .09; --photo-position: 50% 48%; --photo-pan: .65; }
+:root[data-theme="10"] { --photo-url: url('./backgrounds/photo-10.jpg'); --photo-opacity: .12; --photo-position: 50% 65%; }
+:root[data-theme="11"] { --photo-url: url('./backgrounds/photo-11.jpg'); --photo-opacity: .09; --photo-position: 50% 68%; --photo-pan: .7; }
+:root[data-theme="12"] { --photo-url: url('./backgrounds/photo-12.jpg'); --photo-opacity: .10; --photo-position: 50% 50%; --photo-pan: .25; }
+:root[data-theme="13"] { --photo-url: url('./backgrounds/photo-13.jpg'); --photo-opacity: .10; --photo-position: 50% 48%; --photo-pan: .3; }
+:root[data-theme="14"] { --photo-url: url('./backgrounds/photo-14.jpg'); --photo-opacity: .10; --photo-position: 50% 55%; --photo-pan: .65; }
+:root[data-theme="15"] { --photo-url: url('./backgrounds/photo-15.jpg'); --photo-opacity: .11; --photo-position: 50% 60%; --photo-pan: .45; }
+:root[data-theme="16"] { --photo-url: url('./backgrounds/photo-16.jpg'); --photo-opacity: .15; --photo-position: 50% 45%; --photo-pan: .06; }
 :root[data-theme="none"] { --photo-url: none; --photo-opacity: 0; }
 body { min-height: 100vh; isolation: isolate; }
 .page-background { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .page-background-photo {
   position: absolute;
-  left: 50%; top: 50%;
+  left: calc((100% - max(100vw, 177.777778vh)) * var(--photo-pan, .5)); top: 50%;
   width: max(100vw, 177.777778vh);
   aspect-ratio: 16 / 9;
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
   background-image: var(--photo-url);
   background-size: cover;
   background-position: var(--photo-position);

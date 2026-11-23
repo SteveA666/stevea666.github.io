@@ -1,6 +1,6 @@
 // Restore appearance before the first paint; storage may be disabled in private mode.
 (() => {
-  const choices = new Set(['none', '1', '2', '3', '4', '5', '6']);
+  const choices = new Set(['none', ...Array.from({length: 16}, (_, i) => String(i + 1))]);
   const storageKey = 'waytogo.theme';
   let selected = '5';
   try {
