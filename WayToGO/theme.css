@@ -1,0 +1,76 @@
+@font-face {
+  font-family: Saira;
+  src: url('./fonts/Saira-Variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 50% 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: Saira;
+  src: url('./fonts/Saira-Italic-Variable.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 900;
+  font-stretch: 50% 125%;
+  font-display: swap;
+}
+
+/* None retains the original cream and green palette. */
+:root {
+  --ui-base: #f4f5f0; --ui-accent: #226547; --ui-dark: #233d31;
+  --ui-text: #20332d; --ui-muted: #526b5c; --ui-soft: #edf2e8; --ui-border: #ccd8cc;
+}
+:root[data-theme="1"] {
+  --ui-base: #f0f5e9; --ui-accent: #246038; --ui-dark: #193c29;
+  --ui-text: #203329; --ui-muted: #50644b; --ui-soft: #e5eddc; --ui-border: #ccd9c1;
+}
+:root[data-theme="2"] {
+  --ui-base: #edf2f7; --ui-accent: #24547b; --ui-dark: #243c53;
+  --ui-text: #243442; --ui-muted: #506478; --ui-soft: #e1e9f1; --ui-border: #c6d2df;
+}
+:root[data-theme="3"] {
+  --ui-base: #f5f1e5; --ui-accent: #655326; --ui-dark: #463f29;
+  --ui-text: #363426; --ui-muted: #6b6147; --ui-soft: #eee7d4; --ui-border: #d9cfb6;
+}
+:root[data-theme="4"] {
+  --ui-base: #f1f2e9; --ui-accent: #58623a; --ui-dark: #36432e;
+  --ui-text: #303629; --ui-muted: #5c654b; --ui-soft: #e6ead9; --ui-border: #cdd5bd;
+}
+:root[data-theme="5"] {
+  --ui-base: #eef3f7; --ui-accent: #1d5b87; --ui-dark: #233e54;
+  --ui-text: #233442; --ui-muted: #52677b; --ui-soft: #e1ebf3; --ui-border: #c6d6e2;
+}
+:root[data-theme="6"] {
+  --ui-base: #ecefef; --ui-accent: #465d60; --ui-dark: #303e40;
+  --ui-text: #283438; --ui-muted: #56676a; --ui-soft: #dfe6e6; --ui-border: #c5d0d1;
+}
+
+@media screen {
+  :root { font-family: Saira, system-ui, sans-serif; font-stretch: normal; color: var(--ui-text); background: var(--ui-base); }
+  button, input, select, h1, .button, .mode-switch button,
+  .feed-summary h1 { font-family: Saira, system-ui, sans-serif; }
+  /* The ribbon keeps its deliberately chosen Georgia and Y224 branding. */
+  .topbar { font-family: 'DM Sans', system-ui, sans-serif; }
+  .topbar, .workspace, .filters, .notes, input, select, .button,
+  .mode-switch, #branch-field.branch-picker, .direction-jumps a, .group-links a { border-color: var(--ui-border); }
+  .button, input, select { color: var(--ui-text); }
+  .button { background: var(--ui-soft); }
+  .primary, .mode-switch button[aria-pressed=true] { background: var(--ui-accent); border-color: var(--ui-accent); color: #fff; }
+  .dark { background: var(--ui-dark); border-color: var(--ui-dark); color: #fff; }
+  .subtle { background: transparent; }
+  .theme-control select { background: var(--ui-base); }
+  .filters, .notes, #branch-field.branch-picker, .mode-switch,
+  .direction-jumps a, .pdf-toolbar { background: var(--ui-soft); }
+  p, .eyebrow, .small-label, .theme-control, .filters label,
+  #inbound-field, #branch-field, #stats, .legend, .legend b, .day-key,
+  .mode-switch button, footer { color: var(--ui-muted); }
+  .splash-prompt p, .splash-prompt svg { color: var(--ui-text); }
+  .direction-jumps a, .direction-section-head nav a, .direction-end-links a, .group-links a { color: var(--ui-accent); }
+  .live-dot { background: var(--ui-accent); }
+  .button:focus-visible, input:focus-visible, select:focus-visible,
+  .mode-switch button:focus-visible { outline: 3px solid var(--ui-accent); outline-offset: 3px; }
+  #message:not(:empty):not(.error) { background: var(--ui-soft); border-color: var(--ui-border); color: var(--ui-text); }
+  #drop-overlay { background: var(--ui-base); border-color: var(--ui-accent); }
+  #drop-overlay strong { color: var(--ui-text); }
+  .file-drag .splash-prompt { background: var(--ui-soft); }
+}

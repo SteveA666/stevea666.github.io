@@ -5,12 +5,12 @@
   --photo-opacity: .10;
   --photo-position: 50% 65%;
 }
-:root[data-background="1"] { --photo-url: url('./backgrounds/photo-1.jpg'); --photo-opacity: .12; --photo-position: 50% 52%; }
-:root[data-background="2"] { --photo-url: url('./backgrounds/photo-2.jpg'); --photo-opacity: .08; --photo-position: 50% 50%; }
-:root[data-background="3"] { --photo-url: url('./backgrounds/photo-3.jpg'); --photo-opacity: .11; --photo-position: 50% 52%; }
-:root[data-background="4"] { --photo-url: url('./backgrounds/photo-4.jpg'); --photo-opacity: .08; --photo-position: 50% 55%; }
-:root[data-background="6"] { --photo-url: url('./backgrounds/photo-6.jpg'); --photo-opacity: .14; --photo-position: 50% 65%; }
-:root[data-background="none"] { --photo-url: none; --photo-opacity: 0; }
+:root[data-theme="1"] { --photo-url: url('./backgrounds/photo-1.jpg'); --photo-opacity: .12; --photo-position: 50% 52%; }
+:root[data-theme="2"] { --photo-url: url('./backgrounds/photo-2.jpg'); --photo-opacity: .08; --photo-position: 50% 50%; }
+:root[data-theme="3"] { --photo-url: url('./backgrounds/photo-3.jpg'); --photo-opacity: .11; --photo-position: 50% 52%; }
+:root[data-theme="4"] { --photo-url: url('./backgrounds/photo-4.jpg'); --photo-opacity: .08; --photo-position: 50% 55%; }
+:root[data-theme="6"] { --photo-url: url('./backgrounds/photo-6.jpg'); --photo-opacity: .14; --photo-position: 50% 65%; }
+:root[data-theme="none"] { --photo-url: none; --photo-opacity: 0; }
 body { min-height: 100vh; isolation: isolate; }
 .page-background { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .page-background-photo {
@@ -25,11 +25,11 @@ body { min-height: 100vh; isolation: isolate; }
   opacity: var(--photo-opacity);
 }
 .appearance-bar { display: flex; justify-content: flex-end; padding-top: 18px; }
-.background-control { display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #526b5c; }
-.background-control select { width: 220px; background: #f4f5f0; }
+.theme-control { display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #526b5c; }
+.theme-control select { width: 220px; background: #f4f5f0; }
 .intro { padding-top: 30px; }
 @media (max-width: 580px) {
-  .background-control { width: 100%; }
-  .background-control select { flex: 1; width: auto; min-width: 0; }
+  .theme-control { width: 100%; }
+  .theme-control select { flex: 1; width: auto; min-width: 0; }
 }
 @media print { .page-background, .appearance-bar { display: none !important; } }
