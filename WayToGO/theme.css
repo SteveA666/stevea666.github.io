@@ -70,7 +70,9 @@
   .trip-number, .trip-panel td, input[type=date], .legend b { font-family: Saira, system-ui, sans-serif; }
   /* The ribbon keeps its deliberately chosen Georgia and Y224 branding. */
   .topbar { font-family: 'DM Sans', system-ui, sans-serif; }
-  .workspace-head { justify-content: flex-end; }
+  .mode-bar { padding: 24px 26px; justify-content: flex-start; flex-wrap: wrap; }
+  .mode-bar .exports { margin-right: auto; flex-direction: row; }
+  .mode-bar #inbound-field { margin-left: auto; }
   .topbar, .workspace, .filters, .notes, input, select, .button,
   .mode-switch, #branch-field.branch-picker, .direction-jumps a, .group-links a { border-color: var(--ui-border); }
   .button, input, select { color: var(--ui-text); }
@@ -93,4 +95,10 @@
   #drop-overlay { background: var(--ui-base); border-color: var(--ui-accent); }
   #drop-overlay strong { color: var(--ui-text); }
   .file-drag .splash-prompt { background: var(--ui-soft); }
+}
+
+@media screen and (max-width: 580px) {
+  .mode-bar { padding: 18px 16px; flex-direction: row; align-items: center; gap: 14px; }
+  .mode-bar .exports { flex-wrap: wrap; }
+  .mode-bar #inbound-field { flex-basis: 100%; }
 }
