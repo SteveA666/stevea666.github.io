@@ -1,4 +1,4 @@
-import {resolveStations,stationView} from './station-resolution.mjs?v=20261030-station-resolution';
+import {resolveStations,stationView} from './station-resolution.mjs?v=20261123-station-labels';
 import {routeMode} from './modes.mjs';
 export function csv(text) {
   const rows = []; let row = [], value = '', quoted = false;

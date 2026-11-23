@@ -1,8 +1,8 @@
-import {createLocalClient} from './local-client.mjs?v=20261123-route-consolidation';
+import {createLocalClient} from './local-client.mjs?v=20261123-station-labels';
 import {tableSize,splitPanel} from './table-layout.mjs?v=20261030-station-resolution';
-import {inferInbound,boundDirections} from './directions.mjs?v=20261123-cleanup';
+import {inferInbound,boundDirections} from './directions.mjs?v=20261123-station-labels';
 import {importFileFrom,installFileDrop} from './upload.mjs';
-import {groups,clock,dayNames,trainLabel,initialDate,pruneTable,branchTag,branchInfo,branchOptions,directionChoices,tablePanels,genericGroups} from './schedule.mjs?v=20261030-station-resolution';
+import {groups,clock,dayNames,trainLabel,initialDate,pruneTable,branchTag,branchInfo,branchOptions,directionChoices,tablePanels,genericGroups} from './schedule.mjs?v=20261123-station-labels';
 const $=id=>document.getElementById(id);
 const local=createLocalClient(text=>message(text));
 let feed,current=[],busy=false,branchRouteKey="";

@@ -1,4 +1,5 @@
 import {routeMode} from './modes.mjs';
+import {stationDisplayName} from './station-labels.mjs?v=20261123-station-labels';
 export const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 export function activeServices(feed, date) {
   const key = date.replaceAll('-', ''), day = dayNames[new Date(date + 'T12:00:00Z').getUTCDay()].toLowerCase();
@@ -169,7 +170,7 @@ function railTopology(feed,trips) {
     if(!a||!b||[a.stop_lat,a.stop_lon,b.stop_lat,b.stop_lon].some(v=>v==null||v===''||!Number.isFinite(Number(v))))return Infinity;
     return Math.hypot((Number(a.stop_lat)-Number(b.stop_lat))*111320,(Number(a.stop_lon)-Number(b.stop_lon))*111320*Math.cos(Number(a.stop_lat)*Math.PI/180));
   };
-  const stationKey=name=>String(name||'').toLowerCase().replace(/\s+(north|south|east|west)\s+side\b/g,'').replace(/\blower\s+/g,'').trim().split(/\s+at\s+/).sort().join(' at ');
+  const stationKey=name=>stationDisplayName(name).toLowerCase().replace(/\s+(north|south|east|west)\s+side\b/g,'').replace(/\blower\s+/g,'').trim().split(/\s+at\s+/).sort().join(' at ');
   for(const id of used){
     const stop=stops.get(id),key=stationKey(stop?.stop_name),candidates=groups.get(key)||[];
     const match=candidates.find(other=>distance(stop,stops.get(other))<=150);

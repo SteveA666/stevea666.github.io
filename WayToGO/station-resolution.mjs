@@ -1,11 +1,12 @@
 import {routeMode} from './modes.mjs';
+import {stationDisplayName} from './station-labels.mjs?v=20261123-station-labels';
 import {goStopHints} from './stop-hints.mjs?v=20261030-station-resolution';
 
 const caches=new WeakMap();
 const platform=/\s*(?:[-–]\s*)?(?:(?:north|south|east|west)bound\s+)?(?:(?:subway|lrt|train)\s+)?platform(?:\s+(?!towards?\b)\w+)?(?:\s+towards?\s+.+)?\s*$/i;
 const facility=/\b(go|station|terminal|interchange|transit cent(?:re|er)|platform)\b/i;
 const clean=name=>String(name||'').normalize('NFKC').toLowerCase().replace(/[.,]/g,'').replace(/\s+/g,' ').trim();
-function stationName(name){return String(name||'').replace(platform,'').replace(/\s+(?:bus terminal|bus|rail|train)\s*$/i,'').replace(/\s+GO\s*$/i,'').trim();}
+function stationName(name){return stationDisplayName(name).replace(platform,'').replace(/\s+(?:bus terminal|bus|rail|train)\s*$/i,'').replace(/\s+GO\s*$/i,'').trim();}
 function identityName(stop){
   const name=stop.stop_name||'',reference=name.match(/\(([^()]*(?:GO|station|terminal))\)\s*$/i)?.[1];
   return {key:clean(stationName(reference||name)),reference:!!reference,facility:facility.test(name)};
@@ -82,11 +83,11 @@ export function resolveStations(files,{hints}={}){
 }
 
 export function stationView(resolution,selectedStopIds){
-  const view=new Map([...resolution.source].map(([id,s])=>[id,{...s}]));
+  const view=new Map([...resolution.source].map(([id,s])=>[id,{...s,stop_name:stationDisplayName(s.stop_name)}]));
   for(const group of resolution.groups){
     const selected=group.members.filter(id=>selectedStopIds.has(id)),id=group.id;
     const display=selected.includes(id)?id:selected[0]||id;
-    view.set(id,{...view.get(id),stop_name:view.get(display).stop_name.replace(platform,''),source_stop_ids:[...group.members]});
+    view.set(id,{...view.get(id),stop_name:stationDisplayName(view.get(display).stop_name),source_stop_ids:[...group.members]});
   }
   return view;
 }

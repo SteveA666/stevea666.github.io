@@ -1,4 +1,4 @@
-import {directionChoices,seconds,hasPassengerJourney} from './schedule.mjs?v=20261030-station-resolution';
+import {directionChoices,seconds,hasPassengerJourney} from './schedule.mjs?v=20261123-station-labels';
 
 export function inferInbound(feed,routeId) {
   const trips=feed.trips.filter(t=>t.route_id===routeId&&hasPassengerJourney(t)),choices=directionChoices(feed,routeId);
